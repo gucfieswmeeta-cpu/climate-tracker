@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>气候预测追踪器 · ENSO & DWD & 新闻动态</title>
+
+    <!-- 防缓存，确保更新后能立即看到新版本 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
     </script>
     <style>
@@ -295,6 +301,20 @@
 
 <script>
 (function() {
+    // ========== 关键检查：Chart.js 是否加载成功 ==========
+    if (typeof Chart === 'undefined') {
+        document.body.innerHTML = `
+            <div style="max-width:600px;margin:80px auto;text-align:center;font-family:'Segoe UI','PingFang SC',sans-serif;padding:40px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.1);">
+                <div style="font-size:3rem;margin-bottom:20px;">⚠️</div>
+                <h2 style="color:#c75b39;margin-bottom:12px;">图表库加载失败</h2>
+                <p style="color:#6b5e4a;line-height:1.6;">可能由于网络原因（jsdelivr CDN 暂时不可用），图表功能无法使用。</p>
+                <p style="color:#6b5e4a;line-height:1.6;">数据录入、历史记录、新闻管理等功能仍然正常。</p>
+                <button onclick="location.reload()" style="margin-top:20px;padding:12px 28px;background:#2c2416;color:#fff;border:none;border-radius:25px;font-weight:600;cursor:pointer;font-size:1rem;">🔄 刷新页面重试</button>
+                <p style="margin-top:16px;font-size:0.8rem;color:#999;">如果多次刷新无效，请检查网络或使用 VPN。</p>
+            </div>`;
+        return; // 阻止后续脚本执行，避免报错导致白屏
+    }
+
     const STORAGE_KEY_ENSO = 'climate_tracker_enso_records';
     const STORAGE_KEY_DWD = 'climate_tracker_dwd_records';
     const STORAGE_KEY_NEWS = 'climate_tracker_news';
@@ -743,16 +763,21 @@
 
     // 初始化
     function init() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('ensoUpdateDate').value = today;
-        document.getElementById('dwdUpdateDate').value = today;
-        document.getElementById('newsDate').value = today;
-        refreshEnsoHistory(); refreshDwdHistory(); refreshNewsList();
-        updateEnsoChartSelect(); updateEnsoChart();
-        updateDwdChartSelect(); updateDwdChart();
-        updateStorageInfo();
-        window.generateEnsoSeasons();
-        window.generateDwdMonths();
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('ensoUpdateDate').value = today;
+            document.getElementById('dwdUpdateDate').value = today;
+            document.getElementById('newsDate').value = today;
+            refreshEnsoHistory(); refreshDwdHistory(); refreshNewsList();
+            updateEnsoChartSelect(); updateEnsoChart();
+            updateDwdChartSelect(); updateDwdChart();
+            updateStorageInfo();
+            window.generateEnsoSeasons();
+            window.generateDwdMonths();
+        } catch (e) {
+            console.error('初始化出错：', e);
+            alert('页面初始化失败，请刷新重试。错误：' + e.message);
+        }
     }
     init();
 })();
