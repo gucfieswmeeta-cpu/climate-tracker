@@ -7,7 +7,28 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
+<script>
+(function(){
+    var urls = [
+        'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js',
+        'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
+        'https://unpkg.com/chart.js@4.4.7/dist/chart.umd.min.js'
+    ];
+    var i=0;
+    function load(url){
+        var s=document.createElement('script');
+        s.src=url;
+        s.onload=function(){console.log('Chart.js loaded from '+url);};
+        s.onerror=function(){
+            i++;
+            if(i<urls.length) load(urls[i]);
+            else document.body.innerHTML='<h2 style="text-align:center;padding:50px;">Chart.js 加载失败，请检查网络</h2>';
+        };
+        document.head.appendChild(s);
+    }
+    load(urls[0]);
+})();
+</script>
     <style>
         :root {
             --bg: #f5f3ef;
